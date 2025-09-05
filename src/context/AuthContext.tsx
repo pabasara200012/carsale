@@ -13,6 +13,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
+import { mockAuth, MockUser } from '../services/mockAuth';
 import { User, LoginFormData, RegisterFormData } from '../types';
 
 interface AuthContextType {
@@ -37,6 +38,9 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
+// Check if we're on GitHub Pages
+const isGitHubPages = window.location.hostname === 'pabasara200012.github.io';
+
 // Admin credentials (hardcoded as requested)
 const ADMIN_CREDENTIALS = {
   email: 'admin@carsale.com',
@@ -49,6 +53,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (data: LoginFormData): Promise<void> => {
     try {
+      if (isGitHubPages) {
+        // Use mock authentication for GitHub Pages demo
+        console.log('Using mock authentication for GitHub Pages demo');
+        const result = await mockAuth.signInWithEmailAndPassword(data.email, data.password);
+        const mockUser = result.user;
+        
+        const userData: User = {
+          uid: mockUser.uid,
+          email: mockUser.email,
+          displayName: mockUser.displayName,
+          role: data.email === ADMIN_CREDENTIALS.email ? 'admin' : 'user',
+          createdAt: new Date()
+        };
+        
+        setCurrentUser(userData);
+        return;
+      }
       // Special handling for admin login - create admin user if doesn't exist
       if (data.email === ADMIN_CREDENTIALS.email && data.password === ADMIN_CREDENTIALS.password) {
         try {
@@ -161,6 +182,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (data: RegisterFormData): Promise<void> => {
     try {
+      if (isGitHubPages) {
+        // Use mock authentication for GitHub Pages demo
+        console.log('Using mock registration for GitHub Pages demo');
+        const result = await mockAuth.createUserWithEmailAndPassword(data.email, data.password);
+        const mockUser = result.user;
+        
+        const userData: User = {
+          uid: mockUser.uid,
+          email: mockUser.email,
+          displayName: data.displayName,
+          role: 'user',
+          createdAt: new Date()
+        };
+        
+        setCurrentUser(userData);
+        return;
+      }
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const firebaseUser = userCredential.user;
       
@@ -187,6 +225,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async (): Promise<void> => {
     try {
+      if (isGitHubPages) {
+        await mockAuth.signOut();
+        setCurrentUser(null);
+        return;
+      }
+      
       await signOut(auth);
       setCurrentUser(null);
     } catch (error) {
@@ -263,6 +307,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    if (isGitHubPages) {
+      // Use mock authentication state for GitHub Pages
+      const unsubscribe = mockAuth.onAuthStateChanged((mockUser: MockUser | null) => {
+        if (mockUser) {
+          const userData: User = {
+            uid: mockUser.uid,
+            email: mockUser.email,
+            displayName: mockUser.displayName,
+            role: mockUser.email === ADMIN_CREDENTIALS.email ? 'admin' : 'user',
+            createdAt: new Date()
+          };
+          setCurrentUser(userData);
+        } else {
+          setCurrentUser(null);
+        }
+        setLoading(false);
+      });
+      
+      return unsubscribe;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
         // Get user data from Firestore
