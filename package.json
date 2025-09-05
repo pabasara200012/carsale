@@ -2,7 +2,7 @@
   "name": "carsale-system",
   "version": "1.0.0",
   "description": "Car Sale System with React, Firebase, and Cloudinary",
-  "homepage": "https://yourusername.github.io/carsale",
+  "homepage": "https://pabasara200012.github.io/carsale",
   "private": true,
   "scripts": {
     "start": "react-scripts start",
