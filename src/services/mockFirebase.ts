@@ -19,11 +19,16 @@ const mockVehicles = [
     sellingPrice: 3500000,
     netProfit: 500000,
     restPayment: 0,
+    advancePayment: 3500000,
+    price: 3500000,
+    tax: 0,
+    duty: 0,
+    totalAmount: 3500000,
     status: 'available',
     images: ['https://via.placeholder.com/400x300?text=Toyota+Prius'],
+    addedBy: 'demo-user',
     createdAt: new Date(),
-    updatedAt: new Date(),
-    createdBy: 'demo-user'
+    updatedAt: new Date()
   },
   {
     id: 'demo-2',
@@ -39,14 +44,20 @@ const mockVehicles = [
     sellingPrice: 3200000,
     netProfit: 500000,
     restPayment: 200000,
+    advancePayment: 3000000,
+    price: 3200000,
+    tax: 0,
+    duty: 0,
+    totalAmount: 3200000,
     status: 'sold',
     images: ['https://via.placeholder.com/400x300?text=Honda+Civic'],
     purchaserName: 'John Doe',
     purchaserPhone: '+94771234567',
-    purchaserEmail: 'john@example.com',
+    purchaserIdNumber: '123456789V',
+    purchaserAddress: '123 Main St, Colombo',
+    addedBy: 'demo-user',
     createdAt: new Date(),
-    updatedAt: new Date(),
-    createdBy: 'demo-user'
+    updatedAt: new Date()
   },
   {
     id: 'demo-3',
@@ -62,14 +73,19 @@ const mockVehicles = [
     sellingPrice: 2800000,
     netProfit: 500000,
     restPayment: 100000,
+    advancePayment: 2700000,
+    price: 2800000,
+    tax: 0,
+    duty: 0,
+    totalAmount: 2800000,
     status: 'pending',
     images: ['https://via.placeholder.com/400x300?text=Nissan+Note'],
     shippingCompany: 'Ocean Logistics',
     shippingDate: new Date('2025-08-15'),
     arrivalDate: new Date('2025-09-15'),
+    addedBy: 'demo-user',
     createdAt: new Date(),
-    updatedAt: new Date(),
-    createdBy: 'demo-user'
+    updatedAt: new Date()
   }
 ];
 

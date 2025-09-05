@@ -1,50 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle } from '../types';
-import { collection, getDocs, query, where, deleteDoc, doc } from 'firebase/firestore';
-import { db } from '../services/firebase';
+import { useVehicles } from '../hooks/useVehicles';
 import Layout from '../components/Layout';
 
 const Dashboard: React.FC = () => {
   const { currentUser, isAdmin } = useAuth();
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { vehicles, loading, deleteVehicle } = useVehicles();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
-    loadVehicles();
-  }, []);
-
-  useEffect(() => {
     filterVehicles();
   }, [searchTerm, vehicles, filterStatus]);
-
-  const loadVehicles = async () => {
-    try {
-      setLoading(true);
-      const vehiclesRef = collection(db, 'vehicles');
-      let vehiclesQuery = query(vehiclesRef);
-
-      if (!isAdmin && currentUser) {
-        vehiclesQuery = query(vehiclesRef, where('addedBy', '==', currentUser.uid));
-      }
-
-      const querySnapshot = await getDocs(vehiclesQuery);
-      const vehiclesList: Vehicle[] = [];
-      
-      querySnapshot.forEach((doc) => {
-        vehiclesList.push({ id: doc.id, ...doc.data() } as Vehicle);
-      });
-
-      setVehicles(vehiclesList);
-    } catch (error) {
-      console.error('Error loading vehicles:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filterVehicles = () => {
     let filtered = vehicles;
@@ -68,8 +37,7 @@ const Dashboard: React.FC = () => {
   const handleDeleteVehicle = async (vehicleId: string) => {
     if (window.confirm('Are you sure you want to delete this vehicle?')) {
       try {
-        await deleteDoc(doc(db, 'vehicles', vehicleId));
-        setVehicles(vehicles.filter(v => v.id !== vehicleId));
+        await deleteVehicle(vehicleId);
       } catch (error) {
         console.error('Error deleting vehicle:', error);
       }
