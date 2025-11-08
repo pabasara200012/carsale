@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/carsale/static/css/main.b6048dec.css",
+    "main.js": "/carsale/static/js/main.86adc52f.js",
+    "index.html": "/carsale/index.html",
+    "main.b6048dec.css.map": "/carsale/static/css/main.b6048dec.css.map",
+    "main.86adc52f.js.map": "/carsale/static/js/main.86adc52f.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b6048dec.css",
+    "static/js/main.86adc52f.js"
+  ]
+}
