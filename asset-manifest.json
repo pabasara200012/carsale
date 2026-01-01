@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/carsale/static/css/main.b6048dec.css",
-    "main.js": "/carsale/static/js/main.5e39ca8f.js",
+    "main.js": "/carsale/static/js/main.45685580.js",
     "index.html": "/carsale/index.html",
     "main.b6048dec.css.map": "/carsale/static/css/main.b6048dec.css.map",
-    "main.5e39ca8f.js.map": "/carsale/static/js/main.5e39ca8f.js.map"
+    "main.45685580.js.map": "/carsale/static/js/main.45685580.js.map"
   },
   "entrypoints": [
     "static/css/main.b6048dec.css",
-    "static/js/main.5e39ca8f.js"
+    "static/js/main.45685580.js"
   ]
 }
