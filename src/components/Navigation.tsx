@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 
 const Navigation: React.FC = () => {
   const { currentUser, logout, isAdmin } = useAuth();
@@ -25,7 +25,7 @@ const Navigation: React.FC = () => {
   const navigationItems = [
     { name: 'Dashboard', path: '/dashboard', icon: '🏠' },
     { name: 'Add Vehicle', path: '/add-vehicle', icon: '➕' },
-    { name: 'Analytics', path: '/analytics', icon: '�' },
+    { name: 'Analytics', path: '/analytics', icon: '📊' },
     { name: 'Settings', path: '/settings', icon: '⚙️' },
   ];
 
@@ -36,23 +36,23 @@ const Navigation: React.FC = () => {
       <div className="nav-container">
         {/* Logo/Brand Section */}
         <div className="nav-brand">
-          <a href="/dashboard" className="brand-link">
+          <Link to="/dashboard" className="brand-link">
             <div className="brand-icon">🚗</div>
             <div className="brand-text">CarSale</div>
-          </a>
+          </Link>
         </div>
 
         {/* Desktop Navigation Menu */}
         <div className="nav-menu">
           {navigationItems.map((item) => (
-            <a
+            <Link
               key={item.path}
-              href={item.path}
+              to={item.path}
               className={`nav-item ${isActivePath(item.path) ? 'nav-item-active' : ''}`}
             >
               <span className="nav-item-icon">{item.icon}</span>
               <span className="nav-item-text">{item.name}</span>
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -84,10 +84,10 @@ const Navigation: React.FC = () => {
             {userMenuOpen && (
               <div className="user-dropdown">
                 <div className="dropdown-item">
-                  <a href="/settings" className="dropdown-link">
+                  <Link to="/settings" className="dropdown-link">
                     <span className="dropdown-icon">⚙️</span>
                     <span>Settings</span>
-                  </a>
+                  </Link>
                 </div>
                 <div className="dropdown-divider"></div>
                 <div className="dropdown-item">
@@ -137,16 +137,16 @@ const Navigation: React.FC = () => {
             
             <div className="mobile-nav-menu">
               {navigationItems.map((item) => (
-                <a
+                <Link
                   key={item.path}
-                  href={item.path}
+                  to={item.path}
                   className={`mobile-nav-item ${isActivePath(item.path) ? 'active' : ''}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <span className="nav-item-icon">{item.icon}</span>
                   <span className="nav-item-text">{item.name}</span>
                   {isActivePath(item.path) && <span className="active-indicator">●</span>}
-                </a>
+                </Link>
               ))}
             </div>
             

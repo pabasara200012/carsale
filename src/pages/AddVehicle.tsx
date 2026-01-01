@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { VehicleFormData, TaxDutyConfig } from '../types';
-import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 import { uploadMultipleImages, uploadImagesAsBase64 } from '../services/cloudinary';
 import Layout from '../components/Layout';
 
@@ -19,7 +19,7 @@ const AddVehicle: React.FC = () => {
     // Financial Information
     purchasePrice: 0,
     cifValue: 0,
-    lcValue: 0,
+    tax: 0,
     sellingPrice: 0,
     advancePayment: 0,
     
@@ -45,8 +45,8 @@ const AddVehicle: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Auto-calculate derived values
-  const netProfit = formData.sellingPrice - formData.cifValue;
+  // Auto-calculate derived values: Selling Price - (CIF + Tax)
+  const netProfit = formData.sellingPrice - (formData.cifValue + (formData.tax || 0));
   const restPayment = formData.sellingPrice - formData.advancePayment;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,7 +102,7 @@ const AddVehicle: React.FC = () => {
         // Financial Information
         purchasePrice: formData.purchasePrice,
         cifValue: formData.cifValue,
-        lcValue: formData.lcValue,
+        tax: formData.tax,
         sellingPrice: formData.sellingPrice,
         netProfit: netProfit,
         advancePayment: formData.advancePayment,
@@ -129,7 +129,8 @@ const AddVehicle: React.FC = () => {
         status: 'available'
       };
 
-      await addDoc(collection(db, 'vehicles'), vehicleData);
+      const vehiclesCollection = collection(db, 'vehicles');
+      await addDoc(vehiclesCollection, vehicleData);
       
       setSuccess('Vehicle added successfully!');
       
@@ -143,7 +144,7 @@ const AddVehicle: React.FC = () => {
         country: '',
         purchasePrice: 0,
         cifValue: 0,
-        lcValue: 0,
+        tax: 0,
         sellingPrice: 0,
         advancePayment: 0,
         shippingCompany: '',
@@ -169,7 +170,7 @@ const AddVehicle: React.FC = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: ['purchasePrice', 'cifValue', 'lcValue', 'sellingPrice', 'advancePayment', 'price', 'year'].includes(name)
+      [name]: ['purchasePrice', 'cifValue', 'tax', 'sellingPrice', 'advancePayment', 'price', 'year'].includes(name)
         ? parseFloat(value) || 0 
         : value
     });
@@ -386,14 +387,14 @@ const AddVehicle: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  LC Value (LKR)
+                  Tax (LKR)
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-3 text-gray-500">Rs.</span>
                   <input
                     type="number"
-                    name="lcValue"
-                    value={formData.lcValue}
+                    name="tax"
+                    value={(formData as any).tax}
                     onChange={handleChange}
                     min="0"
                     step="0.01"
@@ -401,7 +402,7 @@ const AddVehicle: React.FC = () => {
                     placeholder="0.00"
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Letter of Credit Value</p>
+                <p className="text-xs text-gray-500 mt-1">Tax amount in LKR</p>
               </div>
 
               <div>
@@ -451,7 +452,7 @@ const AddVehicle: React.FC = () => {
                   <div className="text-lg font-semibold text-green-600">
                     Rs. {netProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
-                  <p className="text-xs text-gray-500">Selling Price - CIF Value</p>
+                  <p className="text-xs text-gray-500">Selling Price - (CIF Value + Tax)</p>
                 </div>
               </div>
 

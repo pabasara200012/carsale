@@ -9,6 +9,15 @@ class MockAuthService {
   private currentUser: MockUser | null = null;
   private listeners: ((user: MockUser | null) => void)[] = [];
 
+  constructor() {
+    // Load saved user from localStorage
+    const savedUser = localStorage.getItem('mockUser');
+    if (savedUser) {
+      this.currentUser = JSON.parse(savedUser);
+      this.notifyListeners();
+    }
+  }
+
   // Simulate login
   async signInWithEmailAndPassword(email: string, password: string): Promise<{ user: MockUser }> {
     // Accept any email/password for demo
@@ -19,6 +28,7 @@ class MockAuthService {
     };
     
     this.currentUser = user;
+    localStorage.setItem('mockUser', JSON.stringify(user));
     this.notifyListeners();
     
     return { user };
@@ -41,6 +51,7 @@ class MockAuthService {
   // Simulate logout
   async signOut(): Promise<void> {
     this.currentUser = null;
+    localStorage.removeItem('mockUser');
     this.notifyListeners();
   }
 

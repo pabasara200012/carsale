@@ -1,10 +1,8 @@
-// Hook to provide data services (mock or Firebase)
+// Hook to provide data services using Firebase
 import { useState, useEffect } from 'react';
 import { Vehicle } from '../types';
-import { mockDb } from '../services/mockFirebase';
-
-// Always use mock data for now to ensure compatibility
-const useMockData = true;
+import { db } from '../services/firebase';
+import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc, getDoc, addDoc } from 'firebase/firestore';
 
 export const useVehicles = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -13,15 +11,15 @@ export const useVehicles = () => {
   const loadVehicles = async () => {
     try {
       setLoading(true);
-      console.log('Loading vehicles using mock data');
+      console.log('Loading vehicles from Firebase');
       
-      const vehiclesRef = mockDb.collection('vehicles');
-      const querySnapshot = await vehiclesRef.get();
+      const vehiclesCollection = collection(db, 'vehicles');
+      const querySnapshot = await getDocs(vehiclesCollection);
       const vehiclesList: Vehicle[] = [];
       
-      querySnapshot.docs.forEach((doc) => {
+      querySnapshot.forEach((doc) => {
         const vehicleData = doc.data();
-        vehiclesList.push({ ...vehicleData, id: vehicleData.id || doc.id } as Vehicle);
+        vehiclesList.push({ ...vehicleData, id: doc.id } as Vehicle);
       });
 
       setVehicles(vehiclesList);
@@ -35,9 +33,9 @@ export const useVehicles = () => {
 
   const addVehicle = async (vehicleData: Omit<Vehicle, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      console.log('Adding vehicle using mock data');
-      const vehiclesRef = mockDb.collection('vehicles');
-      const docRef = await vehiclesRef.add({
+      console.log('Adding vehicle to Firebase');
+      const vehiclesCollection = collection(db, 'vehicles');
+      const docRef = await addDoc(vehiclesCollection, {
         ...vehicleData,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -60,9 +58,9 @@ export const useVehicles = () => {
 
   const updateVehicle = async (vehicleId: string, updates: Partial<Vehicle>) => {
     try {
-      console.log('Updating vehicle using mock data');
-      const vehicleRef = mockDb.doc(`vehicles/${vehicleId}`);
-      await vehicleRef.update({
+      console.log('Updating vehicle in Firebase');
+      const vehicleRef = doc(db, 'vehicles', vehicleId);
+      await updateDoc(vehicleRef, {
         ...updates,
         updatedAt: new Date()
       });
@@ -82,9 +80,9 @@ export const useVehicles = () => {
 
   const deleteVehicle = async (vehicleId: string) => {
     try {
-      console.log('Deleting vehicle using mock data');
-      const vehicleRef = mockDb.doc(`vehicles/${vehicleId}`);
-      await vehicleRef.delete();
+      console.log('Deleting vehicle from Firebase');
+      const vehicleRef = doc(db, 'vehicles', vehicleId);
+      await deleteDoc(vehicleRef);
       
       setVehicles(prev => prev.filter(vehicle => vehicle.id !== vehicleId));
     } catch (error) {
@@ -95,15 +93,13 @@ export const useVehicles = () => {
 
   const getVehicle = async (vehicleId: string): Promise<Vehicle | null> => {
     try {
-      console.log('Getting vehicle using mock data');
-      const vehicleRef = mockDb.doc(`vehicles/${vehicleId}`);
-      const doc = await vehicleRef.get();
+      console.log('Getting vehicle from Firebase');
+      const vehicleRef = doc(db, 'vehicles', vehicleId);
+      const docSnap = await getDoc(vehicleRef);
       
-      if (doc.exists()) {
-        const vehicleData = doc.data();
-        if (vehicleData) {
-          return { ...vehicleData, id: vehicleData.id || doc.id } as Vehicle;
-        }
+      if (docSnap.exists()) {
+        const vehicleData = docSnap.data();
+        return { ...vehicleData, id: docSnap.id } as Vehicle;
       }
       return null;
     } catch (error) {

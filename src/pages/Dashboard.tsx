@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle } from '../types';
 import { useVehicles } from '../hooks/useVehicles';
@@ -6,10 +7,11 @@ import Layout from '../components/Layout';
 
 const Dashboard: React.FC = () => {
   const { currentUser, isAdmin } = useAuth();
-  const { vehicles, loading, deleteVehicle } = useVehicles();
+  const { vehicles, loading, deleteVehicle, updateVehicle } = useVehicles();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [statusSaving, setStatusSaving] = useState<Record<string, string>>({});
 
   useEffect(() => {
     filterVehicles();
@@ -32,6 +34,19 @@ const Dashboard: React.FC = () => {
     }
 
     setFilteredVehicles(filtered);
+  };
+
+  const handleQuickStatusChange = async (vehicleId: string, newStatus: 'available' | 'sold' | 'reserved') => {
+    setStatusSaving(prev => ({ ...prev, [vehicleId]: 'saving' }));
+    try {
+      await updateVehicle(vehicleId, { status: newStatus as 'available' | 'sold' | 'reserved' });
+      setStatusSaving(prev => ({ ...prev, [vehicleId]: 'saved' }));
+      setTimeout(() => setStatusSaving(prev => ({ ...prev, [vehicleId]: '' })), 2000);
+    } catch (error) {
+      console.error('Error updating vehicle status:', error);
+      setStatusSaving(prev => ({ ...prev, [vehicleId]: 'error' }));
+      setTimeout(() => setStatusSaving(prev => ({ ...prev, [vehicleId]: '' })), 3000);
+    }
   };
 
   const handleDeleteVehicle = async (vehicleId: string) => {
@@ -82,13 +97,13 @@ const Dashboard: React.FC = () => {
 
       {/* Quick Actions */}
       <div className="mb-8 flex flex-col sm:flex-row gap-4">
-        <a
-          href="/add-vehicle"
+        <Link
+          to="/add-vehicle"
           className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
         >
           <span className="mr-2">➕</span>
           Add New Vehicle
-        </a>
+        </Link>
       </div>
 
       {/* Statistics Cards */}
@@ -257,19 +272,44 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2">
-                  <a
-                    href={`/vehicle/${vehicle.id}`}
+                <div className="flex gap-2 items-center">
+                  <Link
+                    to={`/vehicle/${vehicle.id}`}
                     className="flex-1 px-4 py-2 bg-blue-50 text-blue-700 text-center text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors duration-200"
                   >
                     View
-                  </a>
-                  <a
-                    href={`/edit-vehicle/${vehicle.id}`}
-                    className="flex-1 px-4 py-2 bg-green-50 text-green-700 text-center text-sm font-medium rounded-lg hover:bg-green-100 transition-colors duration-200"
+                  </Link>
+                  <Link
+                    to={`/edit-vehicle/${vehicle.id}`}
+                    className="px-4 py-2 bg-green-50 text-green-700 text-center text-sm font-medium rounded-lg hover:bg-green-100 transition-colors duration-200"
                   >
                     Edit
-                  </a>
+                  </Link>
+
+                  {(isAdmin || vehicle.addedBy === currentUser?.uid) && (
+                    <div className="flex items-center space-x-2">
+                      <select
+                        value={vehicle.status}
+                        onChange={(e) => handleQuickStatusChange(vehicle.id, e.target.value as 'available' | 'sold' | 'reserved')}
+                        disabled={statusSaving[vehicle.id] === 'saving'}
+                        className="px-2 py-1 border rounded text-sm bg-white"
+                      >
+                        <option value="available">available</option>
+                        <option value="sold">sold</option>
+                        <option value="reserved">reserved</option>
+                      </select>
+                      {statusSaving[vehicle.id] === 'saving' && (
+                        <span className="text-sm text-gray-600">Saving...</span>
+                      )}
+                      {statusSaving[vehicle.id] === 'saved' && (
+                        <span className="text-sm text-green-600">Saved</span>
+                      )}
+                      {statusSaving[vehicle.id] === 'error' && (
+                        <span className="text-sm text-red-600">Error</span>
+                      )}
+                    </div>
+                  )}
+
                   {isAdmin && (
                     <button
                       onClick={() => handleDeleteVehicle(vehicle.id)}

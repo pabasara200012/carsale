@@ -1,5 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { mockAuth, MockUser } from '../services/mockAuth';
+import { 
+  User as FirebaseUser,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  updateProfile,
+  updateEmail,
+  updatePassword,
+  onAuthStateChanged 
+} from 'firebase/auth';
+import { auth } from '../services/firebase';
 import { User, LoginFormData, RegisterFormData } from '../types';
 
 interface AuthContextType {
@@ -36,16 +46,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (data: LoginFormData): Promise<void> => {
     try {
-      console.log('Using mock authentication');
-      const result = await mockAuth.signInWithEmailAndPassword(data.email, data.password);
-      const mockUser = result.user;
+      console.log('Using Firebase authentication');
+      const result = await signInWithEmailAndPassword(auth, data.email, data.password);
+      const firebaseUser = result.user;
       
       const userData: User = {
-        uid: mockUser.uid,
-        email: mockUser.email,
-        displayName: mockUser.displayName,
+        uid: firebaseUser.uid,
+        email: firebaseUser.email || '',
+        displayName: firebaseUser.displayName || '',
         role: data.email === ADMIN_CREDENTIALS.email ? 'admin' : 'user',
-        createdAt: new Date()
+        createdAt: new Date(firebaseUser.metadata.creationTime || Date.now())
       };
       
       setCurrentUser(userData);
@@ -56,16 +66,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (data: RegisterFormData): Promise<void> => {
     try {
-      console.log('Using mock registration');
-      const result = await mockAuth.createUserWithEmailAndPassword(data.email, data.password);
-      const mockUser = result.user;
+      console.log('Using Firebase registration');
+      const result = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const firebaseUser = result.user;
+      
+      // Update display name
+      await updateProfile(firebaseUser, { displayName: data.displayName });
       
       const userData: User = {
-        uid: mockUser.uid,
-        email: mockUser.email,
+        uid: firebaseUser.uid,
+        email: firebaseUser.email || '',
         displayName: data.displayName,
         role: 'user',
-        createdAt: new Date()
+        createdAt: new Date(firebaseUser.metadata.creationTime || Date.now())
       };
       
       setCurrentUser(userData);
@@ -76,49 +89,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async (): Promise<void> => {
     try {
-      await mockAuth.signOut();
+      await signOut(auth);
       setCurrentUser(null);
+      localStorage.removeItem('currentUser');
     } catch (error) {
       throw error;
     }
   };
 
   const updateUserProfile = async (data: { displayName?: string }): Promise<void> => {
-    if (!currentUser) {
+    if (!currentUser || !auth.currentUser) {
       throw new Error('No user is currently logged in');
     }
+    await updateProfile(auth.currentUser, data);
     setCurrentUser({ ...currentUser, ...data });
   };
 
   const updateUserEmail = async (email: string): Promise<void> => {
-    if (!currentUser) {
+    if (!currentUser || !auth.currentUser) {
       throw new Error('No user is currently logged in');
     }
+    await updateEmail(auth.currentUser, email);
     setCurrentUser({ ...currentUser, email });
   };
 
   const updateUserPassword = async (password: string): Promise<void> => {
-    console.log('Password update not supported in demo mode');
+    if (!auth.currentUser) {
+      throw new Error('No user is currently logged in');
+    }
+    await updatePassword(auth.currentUser, password);
   };
 
   useEffect(() => {
-    const unsubscribe = mockAuth.onAuthStateChanged((mockUser: MockUser | null) => {
-      if (mockUser) {
+    // Check localStorage first
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+      setCurrentUser(JSON.parse(savedUser));
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
         const userData: User = {
-          uid: mockUser.uid,
-          email: mockUser.email,
-          displayName: mockUser.displayName,
-          role: mockUser.email === ADMIN_CREDENTIALS.email ? 'admin' : 'user',
-          createdAt: new Date()
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          displayName: firebaseUser.displayName || '',
+          role: firebaseUser.email === ADMIN_CREDENTIALS.email ? 'admin' : 'user',
+          createdAt: new Date(firebaseUser.metadata.creationTime || Date.now())
         };
         setCurrentUser(userData);
+        localStorage.setItem('currentUser', JSON.stringify(userData));
       } else {
         setCurrentUser(null);
+        localStorage.removeItem('currentUser');
       }
       setLoading(false);
     });
     
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const value: AuthContextType = {

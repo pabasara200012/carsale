@@ -3,7 +3,7 @@ import { Vehicle } from '../types';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
-import Layout from './Layout';
+import Layout from '../components/Layout';
 
 interface VehicleDetailsProps {
   vehicleId: string;
@@ -65,11 +65,11 @@ const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicleId }) => {
       } else if (section === 'financial') {
         updateData.purchasePrice = editData.purchasePrice || 0;
         updateData.cifValue = editData.cifValue || 0;
-        updateData.lcValue = editData.lcValue || 0;
+        updateData.tax = editData.tax || 0;
         updateData.sellingPrice = editData.sellingPrice || 0;
         updateData.advancePayment = editData.advancePayment || 0;
         // Calculate derived values
-        updateData.netProfit = (editData.sellingPrice || 0) - (editData.cifValue || 0);
+        updateData.netProfit = (editData.sellingPrice || 0) - ((editData.cifValue || 0) + (editData.tax || 0));
         updateData.restPayment = (editData.sellingPrice || 0) - (editData.advancePayment || 0);
       } else if (section === 'shipping') {
         updateData.shippingCompany = editData.shippingCompany;
@@ -99,7 +99,7 @@ const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicleId }) => {
 
   const calculateProfit = () => {
     if (!vehicle) return 0;
-    return (vehicle.sellingPrice || 0) - (vehicle.cifValue || 0);
+    return (vehicle.sellingPrice || 0) - ((vehicle.cifValue || 0) + (vehicle.tax || 0));
   };
 
   const calculateRestPayment = () => {
@@ -336,13 +336,13 @@ const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicleId }) => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">LC Value (LKR)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tax (LKR)</label>
                 <div className="relative">
                   <span className="absolute left-3 top-3 text-gray-500">Rs.</span>
                   <input
                     type="number"
-                    value={editData.lcValue || ''}
-                    onChange={(e) => setEditData({ ...editData, lcValue: parseFloat(e.target.value) || 0 })}
+                    value={editData.tax || ''}
+                    onChange={(e) => setEditData({ ...editData, tax: parseFloat(e.target.value) || 0 })}
                     className="w-full pl-12 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -397,8 +397,8 @@ const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicleId }) => {
                 <p className="font-semibold">Rs. {(vehicle.cifValue || 0).toLocaleString()}</p>
               </div>
               <div>
-                <span className="text-sm text-gray-600">LC Value:</span>
-                <p className="font-semibold">Rs. {(vehicle.lcValue || 0).toLocaleString()}</p>
+                <span className="text-sm text-gray-600">Tax:</span>
+                <p className="font-semibold">Rs. {(vehicle.tax || 0).toLocaleString()}</p>
               </div>
               <div>
                 <span className="text-sm text-gray-600">Selling Price:</span>

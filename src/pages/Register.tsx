@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { RegisterFormData } from '../types';
 
 const Register: React.FC = () => {
   const { register } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<RegisterFormData>({
     email: '',
     password: '',
@@ -32,6 +34,7 @@ const Register: React.FC = () => {
 
     try {
       await register(formData);
+      navigate('/dashboard');
     } catch (error: any) {
       setError(error.message || 'Registration failed');
     } finally {
@@ -161,12 +164,12 @@ const Register: React.FC = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Already have an account?{' '}
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="font-medium text-purple-600 hover:text-purple-500 transition-colors duration-200"
               >
                 Sign in here
-              </a>
+              </Link>
             </p>
           </div>
         </div>

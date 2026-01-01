@@ -22,7 +22,7 @@ export interface Vehicle {
   cifValue: number; // Cost, Insurance, and Freight value
   lcValue: number; // Letter of Credit value
   sellingPrice: number; // Final selling price
-  netProfit: number; // Calculated: sellingPrice - cifValue
+  netProfit: number; // Calculated: sellingPrice - (CIF value + Tax)
   
   // Payment Tracking
   advancePayment: number; // Amount paid in advance
@@ -96,7 +96,8 @@ export interface VehicleFormData {
   // Financial Information
   purchasePrice: number;
   cifValue: number;
-  lcValue: number;
+  lcValue?: number;
+  tax: number;
   sellingPrice: number;
   advancePayment: number;
   

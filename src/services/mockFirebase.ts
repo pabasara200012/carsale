@@ -1,9 +1,6 @@
 // Mock Firebase services for demo/testing without real Firebase project
-// Use this if you want to test the app without setting up Firebase
-
 import { User } from 'firebase/auth';
 
-// Mock vehicle data for demo
 const mockVehicles = [
   {
     id: 'demo-1',
@@ -29,67 +26,9 @@ const mockVehicles = [
     addedBy: 'demo-user',
     createdAt: new Date(),
     updatedAt: new Date()
-  },
-  {
-    id: 'demo-2',
-    chassisNumber: 'DEMO002',
-    brand: 'Honda',
-    model: 'Civic',
-    year: 2019,
-    grade: 'EX',
-    country: 'Japan',
-    purchasePrice: 2200000,
-    cifValue: 2500000,
-    lcValue: 2700000,
-    sellingPrice: 3200000,
-    netProfit: 500000,
-    restPayment: 200000,
-    advancePayment: 3000000,
-    price: 3200000,
-    tax: 0,
-    duty: 0,
-    totalAmount: 3200000,
-    status: 'sold',
-    images: ['https://via.placeholder.com/400x300?text=Honda+Civic'],
-    purchaserName: 'John Doe',
-    purchaserPhone: '+94771234567',
-    purchaserIdNumber: '123456789V',
-    purchaserAddress: '123 Main St, Colombo',
-    addedBy: 'demo-user',
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: 'demo-3',
-    chassisNumber: 'DEMO003',
-    brand: 'Nissan',
-    model: 'Note',
-    year: 2021,
-    grade: 'X',
-    country: 'Japan',
-    purchasePrice: 1800000,
-    cifValue: 2100000,
-    lcValue: 2300000,
-    sellingPrice: 2800000,
-    netProfit: 500000,
-    restPayment: 100000,
-    advancePayment: 2700000,
-    price: 2800000,
-    tax: 0,
-    duty: 0,
-    totalAmount: 2800000,
-    status: 'pending',
-    images: ['https://via.placeholder.com/400x300?text=Nissan+Note'],
-    shippingCompany: 'Ocean Logistics',
-    shippingDate: new Date('2025-08-15'),
-    arrivalDate: new Date('2025-09-15'),
-    addedBy: 'demo-user',
-    createdAt: new Date(),
-    updatedAt: new Date()
   }
 ];
 
-// Mock user data
 const mockUsers = [
   {
     uid: 'admin-123',
@@ -107,15 +46,12 @@ const mockUsers = [
 
 let currentUser: any = null;
 
-// Mock authentication functions
 export const mockAuth = {
   signInWithEmailAndPassword: async (email: string, password: string) => {
-    // Simulate admin login
     if (email === 'admin@carsale.com' && password === 'admin123456') {
       currentUser = mockUsers[0];
       return { user: currentUser };
     }
-    // Simulate regular user login  
     if (email === 'user@example.com' && password === 'password') {
       currentUser = mockUsers[1];
       return { user: currentUser };
@@ -140,7 +76,6 @@ export const mockAuth = {
   },
 
   onAuthStateChanged: (callback: (user: any) => void) => {
-    // Simulate auth state change
     setTimeout(() => callback(currentUser), 100);
     return () => {}; // unsubscribe function
   },
@@ -148,99 +83,165 @@ export const mockAuth = {
   currentUser
 };
 
-// Mock Firestore functions
-export const mockDb = {
-  collection: (path: string) => ({
-    add: async (data: any) => {
-      console.log('Mock Firestore add:', path, data);
-      if (path === 'vehicles') {
-        const newVehicle = {
-          ...data,
-          id: 'demo-' + Date.now(),
-          createdAt: new Date(),
-          updatedAt: new Date()
-        };
-        mockVehicles.push(newVehicle);
-        return { id: newVehicle.id };
-      }
-      return { id: 'mock-doc-' + Date.now() };
-    },
-    get: async () => {
-      if (path === 'vehicles') {
-        return {
-          docs: mockVehicles.map(vehicle => ({
-            id: vehicle.id,
-            data: () => vehicle
-          })),
-          forEach: (callback: any) => {
-            mockVehicles.forEach(vehicle => {
-              callback({
-                id: vehicle.id,
-                data: () => vehicle
-              });
-            });
-          }
-        };
-      }
-      return {
-        docs: [],
-        forEach: () => {}
-      };
-    },
-    where: () => ({
-      get: async () => ({
-        docs: [],
-        forEach: () => {}  
-      })
-    })
-  }),
-  doc: (path: string) => ({
-    set: async (data: any) => {
-      console.log('Mock Firestore set:', path, data);
-    },
-    get: async () => {
-      const [collectionName, docId] = path.split('/');
-      if (collectionName === 'vehicles') {
-        const vehicle = mockVehicles.find(v => v.id === docId);
-        return {
-          exists: () => !!vehicle,
-          data: () => vehicle,
-          id: docId
-        };
-      }
-      return {
-        exists: () => false,
-        data: () => null
-      };
-    },
-    update: async (data: any) => {
-      const [collectionName, docId] = path.split('/');
-      if (collectionName === 'vehicles') {
-        const index = mockVehicles.findIndex(v => v.id === docId);
-        if (index !== -1) {
-          mockVehicles[index] = { 
-            ...mockVehicles[index], 
-            ...data, 
-            updatedAt: new Date() 
-          };
-        }
-      }
-      console.log('Mock Firestore update:', path, data);
-    },
-    delete: async () => {
-      const [collectionName, docId] = path.split('/');
-      if (collectionName === 'vehicles') {
-        const index = mockVehicles.findIndex(v => v.id === docId);
-        if (index !== -1) {
-          mockVehicles.splice(index, 1);
-        }
-      }
-      console.log('Mock Firestore delete:', path);
-    }
-  })
+export type MockFirestoreSnapshot = {
+  exists: () => boolean;
+  data: () => any;
+  id: string;
 };
 
-// Mock Storage functions  
+export type MockQuerySnapshot = {
+  docs: MockFirestoreSnapshot[];
+  empty: boolean;
+  forEach: (callback: (doc: MockFirestoreSnapshot) => void) => void;
+};
+
+export type MockDocumentReference = {
+  set: (data: any) => Promise<void>;
+  get: () => Promise<MockFirestoreSnapshot>;
+  update: (data: any) => Promise<void>;
+  delete: () => Promise<void>;
+};
+
+export type MockCollectionReference = {
+  add: (data: any) => Promise<{id: string}>;
+  get: () => Promise<MockQuerySnapshot>;
+  where: (field: string, operator: string, value: any) => MockCollectionReference;
+  doc: (id: string) => MockDocumentReference;
+};
+
+export class MockFirestore {
+  constructor() {}
+
+  collection(path: string): MockCollectionReference {
+    return {
+      add: async (data: any) => {
+        console.log('Mock Firestore add:', path, data);
+        if (path === 'vehicles') {
+          const newVehicle = {
+            ...data,
+            id: 'demo-' + Date.now(),
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+          mockVehicles.push(newVehicle);
+          return { id: newVehicle.id };
+        }
+        return { id: 'mock-doc-' + Date.now() };
+      },
+      get: async () => {
+        if (path === 'vehicles') {
+          return {
+            docs: mockVehicles.map(vehicle => ({
+              id: vehicle.id,
+              data: () => vehicle,
+              exists: () => true
+            })),
+            empty: mockVehicles.length === 0,
+            forEach: (callback: (doc: MockFirestoreSnapshot) => void) => {
+              mockVehicles.forEach(vehicle => {
+                callback({
+                  id: vehicle.id,
+                  data: () => vehicle,
+                  exists: () => true
+                });
+              });
+            }
+          };
+        }
+        return {
+          docs: [],
+          empty: true,
+          forEach: () => {} 
+        };
+      },
+      where: (field: string, operator: string, value: any): MockCollectionReference => {
+        return {
+          add: async () => ({ id: 'mock-' + Date.now() }),
+          get: async () => {
+            if (path === 'vehicles') {
+              return {
+                docs: mockVehicles
+                  .filter(vehicle => {
+                    if (operator === '==') {
+                      return vehicle[field as keyof typeof vehicle] === value;
+                    }
+                    return false;
+                  })
+                  .map(vehicle => ({
+                    id: vehicle.id,
+                    data: () => vehicle,
+                    exists: () => true
+                  })),
+                empty: mockVehicles.length === 0,
+                forEach: () => {}
+              };
+            }
+            return {
+              docs: [],
+              empty: true,
+              forEach: () => {}
+            };
+          },
+          where: (field: string, operator: string, value: any) => 
+            this.collection(path).where(field, operator, value),
+          doc: (id: string) => this.doc(`${path}/${id}`)
+        };
+      },
+      doc: (id: string) => this.doc(`${path}/${id}`) 
+    };
+  }
+
+  doc(path: string): MockDocumentReference {
+    return {
+      set: async (data: any) => {
+        console.log('Mock Firestore set:', path, data);
+      },
+      get: async () => {
+        const [collectionName, docId] = path.split('/');
+        if (collectionName === 'vehicles') {
+          const vehicle = mockVehicles.find(v => v.id === docId);
+          return {
+            exists: () => !!vehicle,
+            data: () => vehicle,
+            id: docId
+          };
+        }
+        return {
+          exists: () => false,
+          data: () => null,
+          id: 'not-found'
+        };
+      },
+      update: async (data: any) => {
+        const [collectionName, docId] = path.split('/');
+        if (collectionName === 'vehicles') {
+          const index = mockVehicles.findIndex(v => v.id === docId);
+          if (index !== -1) {
+            mockVehicles[index] = { 
+              ...mockVehicles[index], 
+              ...data, 
+              updatedAt: new Date() 
+            };
+          }
+        }
+        console.log('Mock Firestore update:', path, data);
+      },
+      delete: async () => {
+        const [collectionName, docId] = path.split('/');
+        if (collectionName === 'vehicles') {
+          const index = mockVehicles.findIndex(v => v.id === docId);
+          if (index !== -1) {
+            mockVehicles.splice(index, 1);
+          }
+        }
+        console.log('Mock Firestore delete:', path);
+      }
+    };
+  }
+}
+
+export const mockDb = new MockFirestore();
+
 export const mockStorage = {
   ref: (path: string) => ({
     put: async (file: File) => {

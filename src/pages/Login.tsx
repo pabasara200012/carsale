@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LoginFormData } from '../types';
 
 const Login: React.FC = () => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: ''
@@ -13,12 +15,36 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Login attempt with:', formData.email);
     setLoading(true);
     setError('');
 
     try {
+      // Validate credentials
+      if (!formData.email || !formData.password) {
+        throw new Error('Please enter both email and password');
+      }
+
+      // Demo credentials validation
+      const validCredentials = [
+        { email: 'admin@carsale.com', password: 'admin123456' },
+        { email: 'user@carsale.com', password: 'user123456' }
+      ];
+
+      const isValidCredentials = validCredentials.some(
+        cred => cred.email === formData.email && cred.password === formData.password
+      );
+
+      if (!isValidCredentials) {
+        throw new Error('Invalid email or password');
+      }
+
+      console.log('Calling login function...');
       await login(formData);
+      console.log('Login successful');
+      navigate('/dashboard', { replace: true });
     } catch (error: any) {
+      console.error('Login error:', error);
       setError(error.message || 'Login failed');
     } finally {
       setLoading(false);
@@ -32,8 +58,24 @@ const Login: React.FC = () => {
     });
   };
 
-  const handleDemoLogin = (email: string, password: string) => {
-    setFormData({ email, password });
+  const handleDemoLogin = async (email: string, password: string) => {
+    const data = { email, password };
+    setFormData(data);
+    console.log('Demo login attempt with:', email);
+    setLoading(true);
+    setError('');
+
+    try {
+      console.log('Calling login function with demo credentials...');
+      await login(data);
+      console.log('Demo login successful');
+      navigate('/dashboard', { replace: true });
+    } catch (error: any) {
+      console.error('Demo login error:', error);
+      setError(error.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,7 +91,6 @@ const Login: React.FC = () => {
         </div>
 
         {/* Demo Accounts */}
-        {/* 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="text-sm font-medium text-blue-900 mb-3">Demo Accounts</h3>
           <div className="space-y-2">
@@ -71,7 +112,6 @@ const Login: React.FC = () => {
             </button>
           </div>
         </div>
-        */}
 
         {/* Login Form */}
         <div className="bg-white shadow-xl rounded-xl border border-gray-100 p-8">
@@ -139,12 +179,12 @@ const Login: React.FC = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <a
-                href="/register"
+              <Link
+                to="/register"
                 className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200"
               >
                 Sign up here
-              </a>
+              </Link>
             </p>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
   return (
@@ -17,18 +18,18 @@ const HomePage: React.FC = () => {
 
             {/* Navigation Links */}
             <div className="flex items-center space-x-4">
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200"
               >
                 Sign In
-              </a>
-              <a
-                href="/register"
+              </Link>
+              <Link
+                to="/register"
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200"
               >
                 Get Started
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -47,18 +48,18 @@ const HomePage: React.FC = () => {
               analytics, and sales tracking platform.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/register"
+              <Link
+                to="/register"
                 className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:-translate-y-1 shadow-lg hover:shadow-xl"
               >
                 Start Free Trial
-              </a>
-              <a
-                href="/login"
+              </Link>
+              <Link
+                to="/login"
                 className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-all duration-200"
               >
                 Sign In
-              </a>
+              </Link>
             </div>
           </div>
         </div>
