@@ -107,6 +107,25 @@ const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicleId }) => {
     return (vehicle.sellingPrice || 0) - (vehicle.advancePayment || 0);
   };
 
+  const toSafeDate = (d: any): Date | null => {
+    if (!d) return null;
+    if (d && typeof d.toDate === 'function') {
+      try {
+        return d.toDate();
+      } catch {
+        return null;
+      }
+    }
+    if (d instanceof Date) return d;
+    const dt = new Date(d);
+    return isNaN(dt.getTime()) ? null : dt;
+  };
+
+  const toSafeDateString = (d: any): string => {
+    const dt = toSafeDate(d);
+    return dt ? dt.toLocaleDateString() : 'Not specified';
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -451,7 +470,7 @@ const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicleId }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Shipping Date</label>
                 <input
                   type="date"
-                  value={editData.shippingDate ? (editData.shippingDate instanceof Date ? editData.shippingDate.toISOString().split('T')[0] : editData.shippingDate) : ''}
+                  value={editData.shippingDate ? (toSafeDate(editData.shippingDate) ? toSafeDate(editData.shippingDate)!.toISOString().split('T')[0] : '') : ''}
                   onChange={(e) => setEditData({ ...editData, shippingDate: new Date(e.target.value) })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -460,7 +479,7 @@ const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicleId }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Arrival Date</label>
                 <input
                   type="date"
-                  value={editData.arrivalDate ? (editData.arrivalDate instanceof Date ? editData.arrivalDate.toISOString().split('T')[0] : editData.arrivalDate) : ''}
+                  value={editData.arrivalDate ? (toSafeDate(editData.arrivalDate) ? toSafeDate(editData.arrivalDate)!.toISOString().split('T')[0] : '') : ''}
                   onChange={(e) => setEditData({ ...editData, arrivalDate: new Date(e.target.value) })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -488,11 +507,11 @@ const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicleId }) => {
               </div>
               <div>
                 <span className="text-sm text-gray-600">Shipping Date:</span>
-                <p className="font-semibold">{vehicle.shippingDate ? new Date(vehicle.shippingDate).toLocaleDateString() : 'Not specified'}</p>
+                <p className="font-semibold">{toSafeDateString(vehicle.shippingDate)}</p>
               </div>
               <div>
                 <span className="text-sm text-gray-600">Arrival Date:</span>
-                <p className="font-semibold">{vehicle.arrivalDate ? new Date(vehicle.arrivalDate).toLocaleDateString() : 'Not specified'}</p>
+                <p className="font-semibold">{toSafeDateString(vehicle.arrivalDate)}</p>
               </div>
             </div>
           )}

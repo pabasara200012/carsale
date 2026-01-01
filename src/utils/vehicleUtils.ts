@@ -56,8 +56,12 @@ export const calculateTotalCost = (basePrice: number, taxPercentage: number, dut
 
 // Calculate profit
 export const calculateProfit = (vehicle: Vehicle): number => {
-  const totalCost = vehicle.price + vehicle.tax + vehicle.duty;
-  return (vehicle.sellingPrice || vehicle.totalAmount || 0) - totalCost;
+  const price = vehicle.price ?? vehicle.purchasePrice ?? vehicle.cifValue ?? 0;
+  const tax = vehicle.tax ?? 0;
+  const duty = vehicle.duty ?? 0;
+  const totalCost = price + tax + duty;
+  const selling = vehicle.sellingPrice ?? vehicle.totalAmount ?? vehicle.netProfit ?? 0;
+  return selling - totalCost;
 };
 
 // Format currency

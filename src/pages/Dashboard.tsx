@@ -60,8 +60,12 @@ const Dashboard: React.FC = () => {
   };
 
   const calculateProfit = (vehicle: Vehicle) => {
-    const totalCost = vehicle.price + vehicle.tax + vehicle.duty;
-    return (vehicle.sellingPrice || vehicle.totalAmount || 0) - totalCost;
+    const price = vehicle.price ?? vehicle.purchasePrice ?? vehicle.cifValue ?? 0;
+    const tax = vehicle.tax ?? 0;
+    const duty = vehicle.duty ?? 0;
+    const totalCost = price + tax + duty;
+    const selling = vehicle.sellingPrice ?? vehicle.totalAmount ?? vehicle.netProfit ?? 0;
+    return selling - totalCost;
   };
 
   const getStatusColor = (status: string) => {
