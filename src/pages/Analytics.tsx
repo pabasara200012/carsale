@@ -47,9 +47,9 @@ const Analytics: React.FC = () => {
       setLoading(true);
       const vehiclesRef = collection(db, 'vehicles');
       const vehiclesSnapshot = await getDocs(vehiclesRef);
-      const vehicles: Vehicle[] = vehiclesSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
+      const vehicles: Vehicle[] = vehiclesSnapshot.docs.map(d => ({
+        id: d.id,
+        ...d.data()
       })) as Vehicle[];
 
       const analytics = calculateAnalytics(vehicles);
@@ -62,19 +62,28 @@ const Analytics: React.FC = () => {
     }
   };
 
-  const calculateAnalytics = (vehicles: Vehicle[]): AnalyticsData => {
+    const calculateAnalytics = (vehicles: Vehicle[]): AnalyticsData => {
+      const safeNum = (n: any) => {
+        if (n === null || n === undefined) return 0;
+        const num = typeof n === 'number' ? n : Number(n);
+        return isNaN(num) ? 0 : num;
+      };
     const totalVehicles = vehicles.length;
-    const totalInventoryValue = vehicles.reduce((sum, vehicle) => sum + vehicle.price, 0);
+    const totalInventoryValue = vehicles.reduce((sum, vehicle) => {
+      const price = safeNum(vehicle.price ?? vehicle.purchasePrice ?? vehicle.cifValue);
+      return sum + price;
+    }, 0);
     const totalPotentialProfit = vehicles.reduce((sum, vehicle) => {
-      const sellingPrice = vehicle.totalAmount || vehicle.price;
-      return sum + (sellingPrice - vehicle.price);
+      const price = safeNum(vehicle.price ?? vehicle.purchasePrice ?? vehicle.cifValue);
+      const sellingPrice = safeNum(vehicle.totalAmount ?? vehicle.sellingPrice ?? vehicle.netProfit);
+      return sum + (sellingPrice - price);
     }, 0);
     const averagePrice = totalVehicles > 0 ? totalInventoryValue / totalVehicles : 0;
 
     // Vehicle status breakdown
-    const vehiclesByStatus = vehicles.reduce((acc, vehicle) => {
-      const status = vehicle.status || 'available';
-      acc[status as keyof typeof acc] = (acc[status as keyof typeof acc] || 0) + 1;
+    const vehiclesByStatus = vehicles.reduce((acc: Record<string, number>, vehicle) => {
+      const status = (vehicle.status as string) || 'available';
+      acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, { available: 0, sold: 0, pending: 0 });
 
@@ -95,7 +104,7 @@ const Analytics: React.FC = () => {
         acc[key] = { make: vehicle.brand, model: vehicle.model, count: 0, revenue: 0 };
       }
       acc[key].count += 1;
-      acc[key].revenue += vehicle.totalAmount || vehicle.price;
+      acc[key].revenue += safeNum(vehicle.totalAmount ?? vehicle.price ?? vehicle.sellingPrice ?? vehicle.netProfit);
       return acc;
     }, {} as Record<string, { make: string; model: string; count: number; revenue: number }>);
 
