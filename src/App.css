@@ -470,6 +470,26 @@ body {
   }
 }
 
+/* Ensure the top navigation is clearly visible on mobile devices */
+@media (max-width: 768px) {
+  .modern-nav {
+    background: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: none !important;
+  }
+
+  /* Make hamburger lines visible on light backgrounds */
+  .hamburger-line {
+    background: #111827; /* dark gray for contrast */
+  }
+
+  /* Increase z-index to keep nav above overlays */
+  .modern-nav, .nav-container {
+    z-index: 1100;
+  }
+}
+
 /* Layout Components */
 .container {
   max-width: 1400px;
