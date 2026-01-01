@@ -81,11 +81,17 @@ const Analytics: React.FC = () => {
     const averagePrice = totalVehicles > 0 ? totalInventoryValue / totalVehicles : 0;
 
     // Vehicle status breakdown
-    const vehiclesByStatus = vehicles.reduce((acc: Record<string, number>, vehicle) => {
+    const vehiclesByStatusMap = vehicles.reduce((acc: Record<string, number>, vehicle) => {
       const status = (vehicle.status as string) || 'available';
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, { available: 0, sold: 0, pending: 0 });
+
+    const vehiclesByStatus = {
+      available: vehiclesByStatusMap['available'] || 0,
+      sold: vehiclesByStatusMap['sold'] || 0,
+      pending: vehiclesByStatusMap['pending'] || 0,
+    };
 
     // Sales by month (mock data for demonstration)
     const salesByMonth = [
