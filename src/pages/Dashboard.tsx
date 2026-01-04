@@ -95,7 +95,7 @@ const Dashboard: React.FC = () => {
     <Layout>
       {/* Page Header */}
       <div className="mb-8" style={{ paddingTop: '70px' }}>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Vehicle Inventory</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Daya Auto</h1>
         <p className="text-gray-600">Welcome back, {currentUser?.displayName || 'User'}! Here's your vehicle overview.</p>
       </div>
 
