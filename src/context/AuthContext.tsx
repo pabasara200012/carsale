@@ -36,8 +36,8 @@ export const useAuth = (): AuthContextType => {
 
 // Admin credentials
 const ADMIN_CREDENTIALS = {
-  email: 'admin@carsale.com',
-  password: 'admin123456'
+  email: 'dayaauto@gmail.com',
+  password: 'daya123789'
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

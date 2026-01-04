@@ -25,20 +25,6 @@ const Login: React.FC = () => {
         throw new Error('Please enter both email and password');
       }
 
-      // Demo credentials validation
-      const validCredentials = [
-        { email: 'admin@carsale.com', password: 'admin123456' },
-        { email: 'user@carsale.com', password: 'user123456' }
-      ];
-
-      const isValidCredentials = validCredentials.some(
-        cred => cred.email === formData.email && cred.password === formData.password
-      );
-
-      if (!isValidCredentials) {
-        throw new Error('Invalid email or password');
-      }
-
       console.log('Calling login function...');
       await login(formData);
       console.log('Login successful');
@@ -83,35 +69,11 @@ const Login: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-6">
-            <span className="text-2xl text-white">🚗</span>
-          </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-          <p className="text-gray-600">Sign in to your car sale account</p>
+          <p className="text-gray-600">Sign in to your Daya Auto account</p>
         </div>
 
-        {/* Demo Accounts */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-blue-900 mb-3">Demo Accounts</h3>
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('admin@carsale.com', 'admin123456')}
-              className="w-full text-left px-3 py-2 bg-white border border-blue-200 rounded-md hover:bg-blue-50 transition-colors duration-200"
-            >
-              <div className="text-sm font-medium text-blue-900">Admin Account</div>
-              <div className="text-xs text-blue-600">admin@carsale.com</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDemoLogin('user@carsale.com', 'user123456')}
-              className="w-full text-left px-3 py-2 bg-white border border-blue-200 rounded-md hover:bg-blue-50 transition-colors duration-200"
-            >
-              <div className="text-sm font-medium text-blue-900">User Account</div>
-              <div className="text-xs text-blue-600">user@carsale.com</div>
-            </button>
-          </div>
-        </div>
+        {/* Demo accounts removed per request */}
 
         {/* Login Form */}
         <div className="bg-white shadow-xl rounded-xl border border-gray-100 p-8">

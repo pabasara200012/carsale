@@ -32,8 +32,8 @@ const mockVehicles = [
 const mockUsers = [
   {
     uid: 'admin-123',
-    email: 'admin@carsale.com', 
-    displayName: 'Admin User',
+    email: 'dayaauto@gmail.com',
+    displayName: 'Daya Admin',
     isAdmin: true
   },
   {
@@ -48,7 +48,7 @@ let currentUser: any = null;
 
 export const mockAuth = {
   signInWithEmailAndPassword: async (email: string, password: string) => {
-    if (email === 'admin@carsale.com' && password === 'admin123456') {
+    if (email === 'dayaauto@gmail.com' && password === 'daya123789') {
       currentUser = mockUsers[0];
       return { user: currentUser };
     }
