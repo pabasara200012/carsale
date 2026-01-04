@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
           className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
         >
           <span className="mr-2">➕</span>
-          Add New Vehicle
+          <p className="text-sm font-medium text-gray-600">Add New Vehicle</p>
         </Link>
       </div>
 
