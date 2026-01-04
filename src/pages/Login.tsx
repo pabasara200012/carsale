@@ -84,6 +84,21 @@ const Login: React.FC = () => {
             </div>
           )}
 
+          {/* Helpful troubleshooting when Firebase returns invalid-credential */}
+          {error && error.includes && error.includes('Invalid credential provided') && (
+            <div className="mb-6 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg">
+              <h4 className="font-semibold mb-2">Deployment / Authentication issue</h4>
+              <p className="text-sm mb-2">The deployed site cannot reach Firebase with valid credentials. To fix this:</p>
+              <ul className="list-disc pl-5 text-sm space-y-1">
+                <li>Enable <strong>Email/Password</strong> in Firebase Console → Authentication → Sign-in method.</li>
+                <li>Add your domain(s) in Firebase Console → Authentication → Authorized domains: <strong>pabasara200012.github.io</strong> and <strong>localhost</strong>.</li>
+                <li>Ensure the Firebase config in <strong>src/services/firebase.ts</strong> matches your Firebase web app settings (apiKey, authDomain, projectId).</li>
+                <li>Create the admin user in Firebase Console → Authentication → Users (email: <strong>dayaauto@gmail.com</strong>).</li>
+              </ul>
+              <p className="text-xs text-gray-600 mt-2">If you want, I can help apply these steps or show exact screenshots.</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
