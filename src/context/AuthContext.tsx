@@ -60,6 +60,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       setCurrentUser(userData);
     } catch (error) {
+      console.error('Login error code:', (error as any)?.code, error);
+      // Provide a clearer message for common credential issues
+      if ((error as any)?.code === 'auth/invalid-credential') {
+        throw new Error('Invalid credential provided. Check your Firebase config, provider tokens, and ensure Email/Password sign-in is enabled.');
+      }
       throw error;
     }
   };
