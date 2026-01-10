@@ -50,9 +50,9 @@ const AppRouter: React.FC = () => {
         <Route 
           path="/add-vehicle" 
           element={
-            <PrivateRoute>
+            <AdminRoute>
               <AddVehicle />
-            </PrivateRoute>
+            </AdminRoute>
           } 
         />
         <Route

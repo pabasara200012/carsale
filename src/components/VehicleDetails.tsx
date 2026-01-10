@@ -172,9 +172,17 @@ const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicleId }) => {
             </h1>
             <p className="text-gray-600 mt-1">Vehicle Details</p>
           </div>
-          <span className={`px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(vehicle.status)}`}>
-            {vehicle.status}
-          </span>
+          <div className="flex items-center space-x-3">
+            <a
+              href={`/vehicle/${vehicle.id}/articles`}
+              className="px-3 py-1 bg-gray-100 text-gray-800 rounded-lg text-sm hover:bg-gray-200"
+            >
+              Articles & Reviews
+            </a>
+            <span className={`px-4 py-2 rounded-full text-sm font-medium border ${getStatusColor(vehicle.status)}`}>
+              {vehicle.status}
+            </span>
+          </div>
         </div>
 
         {/* Vehicle Images */}
