@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle } from '../types';
 import { useVehicles } from '../hooks/useVehicles';
@@ -12,10 +14,23 @@ const Dashboard: React.FC = () => {
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [filterStatus, setFilterStatus] = useState('all');
   const [statusSaving, setStatusSaving] = useState<Record<string, string>>({});
+  const [recentArticles, setRecentArticles] = useState<Array<any>>([]);
 
   useEffect(() => {
     filterVehicles();
+    fetchRecentArticles();
   }, [searchTerm, vehicles, filterStatus]);
+
+  const fetchRecentArticles = async () => {
+    try {
+      const q = query(collection(db, 'vehicleArticles'), orderBy('createdAt', 'desc'), limit(10));
+      const snap = await getDocs(q);
+      const items = snap.docs.map(d => ({ id: d.id, ...(d.data() as any) }));
+      setRecentArticles(items);
+    } catch (err) {
+      console.error('Failed to load recent articles', err);
+    }
+  };
 
   const filterVehicles = () => {
     let filtered = vehicles;
@@ -168,6 +183,22 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Filters */}
+      {/* Recent Articles (horizontal scroll) */}
+      {recentArticles.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-2">Latest Articles</h3>
+          <div className="flex gap-4 overflow-x-auto py-2">
+            {recentArticles.map((a) => (
+              <Link key={a.id} to={`/vehicle/${a.vehicleId}/articles`} className="min-w-[260px] flex-shrink-0 p-4 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md">
+                <div className="text-sm text-gray-600">{a.author || 'Admin'}</div>
+                <div className="font-semibold truncate">{a.title}</div>
+                <div className="text-sm text-gray-500 mt-2 line-clamp-2">{a.body?.slice(0, 120)}</div>
+                <div className="text-xs text-gray-400 mt-3">Vehicle: {a.vehicleId}</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1">

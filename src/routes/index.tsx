@@ -11,6 +11,7 @@ import EditVehicle from '../pages/EditVehicle';
 import VehicleDetails from '../components/VehicleDetails';
 import Analytics from '../pages/Analytics';
 import Settings from '../pages/Settings';
+import VehicleArticles from '../pages/VehicleArticles';
 
 const AppRouter: React.FC = () => {
   const { currentUser } = useAuth();
@@ -69,7 +70,7 @@ const AppRouter: React.FC = () => {
           }
         />
         <Route path="/vehicle/:id" element={<VehicleDetailsWrapper />} />
-        <Route path="/vehicle/:id/articles" element={<VehicleDetailsWrapper />} />
+        <Route path="/vehicle/:id/articles" element={<VehicleArticles />} />
         <Route 
           path="/analytics" 
           element={
