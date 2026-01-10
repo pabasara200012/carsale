@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { collection, query, orderBy, getDocs, deleteDoc, doc, updateDoc, addDoc } from 'firebase/firestore';
+import { uploadMultipleImages } from '../services/cloudinary';
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 
@@ -21,6 +22,8 @@ const ArticlesAdmin: React.FC = () => {
   const [editTitle, setEditTitle] = useState('');
   const [editBody, setEditBody] = useState('');
   const [newVehicleId, setNewVehicleId] = useState('');
+  const [newVehicleName, setNewVehicleName] = useState('');
+  const [newFiles, setNewFiles] = useState<File[]>([]);
   const [newTitle, setNewTitle] = useState('');
   const [newBody, setNewBody] = useState('');
 
@@ -72,16 +75,25 @@ const ArticlesAdmin: React.FC = () => {
   };
 
   const handleCreate = async () => {
-    if (!newVehicleId || !newTitle || !newBody) return;
+    if (!newVehicleId && !newVehicleName) return;
+    if (!newTitle || !newBody) return;
     try {
+      let images: string[] = [];
+      if (newFiles && newFiles.length > 0) {
+        const limited = newFiles.slice(0, 4);
+        images = await uploadMultipleImages(limited);
+      }
+
       await addDoc(collection(db, 'vehicleArticles'), {
         vehicleId: newVehicleId,
+        vehicleName: newVehicleName,
         title: newTitle,
         body: newBody,
+        images,
         createdAt: new Date(),
         author: currentUser?.displayName || currentUser?.email || 'Admin'
       });
-      setNewVehicleId(''); setNewTitle(''); setNewBody('');
+      setNewVehicleId(''); setNewTitle(''); setNewBody(''); setNewVehicleName(''); setNewFiles([]);
       fetchArticles();
     } catch (err) {
       console.error('Create failed', err);
@@ -97,12 +109,17 @@ const ArticlesAdmin: React.FC = () => {
 
         <div className="mb-6 p-4 border rounded bg-gray-50">
           <h3 className="font-semibold mb-2">Create New Article</h3>
-          <input value={newVehicleId} onChange={e => setNewVehicleId(e.target.value)} placeholder="Vehicle ID" className="w-full mb-2 p-2 border rounded" />
+          <input value={newVehicleId} onChange={e => setNewVehicleId(e.target.value)} placeholder="Vehicle ID (optional)" className="w-full mb-2 p-2 border rounded" />
+          <input value={newVehicleName} onChange={e => setNewVehicleName(e.target.value)} placeholder="Vehicle Name (optional)" className="w-full mb-2 p-2 border rounded" />
           <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Title" className="w-full mb-2 p-2 border rounded" />
           <textarea value={newBody} onChange={e => setNewBody(e.target.value)} rows={4} placeholder="Body" className="w-full mb-2 p-2 border rounded" />
+          <div className="mb-2">
+            <label className="text-sm">Images (optional, max 4):</label>
+            <input type="file" accept="image/*" multiple onChange={(e) => setNewFiles(Array.from(e.target.files || []).slice(0,4))} />
+          </div>
           <div className="flex gap-2">
             <button onClick={handleCreate} className="px-4 py-2 bg-blue-600 text-white rounded">Publish</button>
-            <button onClick={() => { setNewBody(''); setNewTitle(''); setNewVehicleId(''); }} className="px-4 py-2 bg-gray-200 rounded">Clear</button>
+            <button onClick={() => { setNewBody(''); setNewTitle(''); setNewVehicleId(''); setNewVehicleName(''); setNewFiles([]); }} className="px-4 py-2 bg-gray-200 rounded">Clear</button>
           </div>
         </div>
 
@@ -126,6 +143,13 @@ const ArticlesAdmin: React.FC = () => {
                       <>
                         <div className="font-semibold">{a.title}</div>
                         <div className="text-sm text-gray-700 mt-2">{a.body}</div>
+                        {a.images && a.images.length > 0 && (
+                          <div className="mt-2 flex gap-2">
+                            {a.images.map((img: string, idx: number) => (
+                              <img key={idx} src={img} alt={`article-${idx}`} className="h-28 w-28 object-cover rounded" />
+                            ))}
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
