@@ -166,23 +166,26 @@ const VehicleArticles: React.FC = () => {
           <h2 className="font-semibold mb-2">Reviews</h2>
           {reviews.length === 0 && <p className="text-sm text-gray-600">No reviews yet.</p>}
           {reviews.map(r => (
-            <div key={r.id} className="mb-3 p-3 border rounded">
-              <div className="flex justify-between">
-                <div className="font-medium">{r.userName}</div>
-                <div className="text-sm text-gray-600">{new Date(r.createdAt?.seconds ? r.createdAt.toDate() : r.createdAt).toLocaleString()}</div>
-              </div>
-              <div className="text-sm">Rating: {r.rating}/5</div>
-              <div className="mt-1">{r.comment}</div>
-              {r.images && r.images.length > 0 && (
-                <div className="mt-2 flex gap-2">
-                  {r.images.map((img: string, idx: number) => (
-                    <img key={idx} src={img} alt={`review-${idx}`} className="h-24 w-24 object-cover rounded" />
-                  ))}
+            <div key={r.id} className="mb-3 p-3 border rounded flex items-start gap-3">
+              <div className="flex-1">
+                <div className="flex justify-between items-start">
+                  <div className="font-medium text-sm">{r.userName}</div>
+                  <div className="text-xs text-gray-500">{new Date(r.createdAt?.seconds ? r.createdAt.toDate() : r.createdAt).toLocaleString()}</div>
                 </div>
-              )}
-              {isAdmin && (
-                <div className="mt-2">
-                  <button onClick={() => handleDeleteReview(r.id)} className="px-3 py-1 bg-red-200 rounded">Delete Review</button>
+                <div className="text-sm mt-1">Rating: {r.rating}/5</div>
+                <div className="text-sm mt-1 line-clamp-3">{r.comment}</div>
+                {isAdmin && (
+                  <div className="mt-2">
+                    <button onClick={() => handleDeleteReview(r.id)} className="px-2 py-1 bg-red-100 text-sm rounded">Delete</button>
+                  </div>
+                )}
+              </div>
+
+              {r.images && r.images.length > 0 && (
+                <div className="flex-shrink-0 grid grid-cols-1 gap-2">
+                  {r.images.slice(0,3).map((img: string, idx: number) => (
+                    <img key={idx} src={img} alt={`review-${idx}`} className="h-20 w-24 object-cover rounded" />
+                  ))}
                 </div>
               )}
             </div>
@@ -210,26 +213,24 @@ const VehicleArticles: React.FC = () => {
           <h2 className="font-semibold mb-2">Articles</h2>
           {articles.length === 0 && <p className="text-sm text-gray-600">No articles yet.</p>}
           {articles.map(a => (
-            <div key={a.id} className="mb-4 p-4 border rounded">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-semibold">{a.title}</h3>
-                  <p className="text-sm text-gray-600">By {a.author} • {new Date(a.createdAt?.seconds ? a.createdAt.toDate() : a.createdAt).toLocaleString()}</p>
-                  <div className="mt-2">{a.body}</div>
-                  {a.images && a.images.length > 0 && (
-                    <div className="mt-2 flex gap-2">
-                      {a.images.map((img: string, idx: number) => (
-                        <img key={idx} src={img} alt={`article-${idx}`} className="h-28 w-28 object-cover rounded" />
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {isAdmin && (
-                  <div className="ml-4 flex flex-col gap-2">
-                    <button onClick={() => handleDeleteArticle(a.id)} className="px-3 py-1 bg-red-200 rounded">Delete</button>
-                  </div>
-                )}
+            <div key={a.id} className="mb-4 p-3 border rounded bg-white flex items-start gap-3">
+              {a.images && a.images.length > 0 ? (
+                <img src={a.images[0]} alt="article-thumb" className="h-20 w-28 object-cover rounded-md flex-shrink-0" />
+              ) : (
+                <div className="h-20 w-28 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center text-gray-400">No Image</div>
+              )}
+
+              <div className="flex-1">
+                <div className="text-xs text-gray-500">By {a.author} • {new Date(a.createdAt?.seconds ? a.createdAt.toDate() : a.createdAt).toLocaleString()}</div>
+                <div className="font-medium text-sm mt-1">{a.title}</div>
+                <div className="text-sm text-gray-700 mt-1 line-clamp-2">{a.body}</div>
               </div>
+
+              {isAdmin && (
+                <div className="ml-2 flex flex-col gap-2">
+                  <button onClick={() => handleDeleteArticle(a.id)} className="px-2 py-1 bg-red-100 text-sm rounded">Delete</button>
+                </div>
+              )}
             </div>
           ))}
 

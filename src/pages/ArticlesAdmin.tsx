@@ -127,37 +127,36 @@ const ArticlesAdmin: React.FC = () => {
         {loading ? <div>Loading...</div> : (
           <div className="space-y-4">
             {articles.map(a => (
-              <div key={a.id} className="p-4 border rounded bg-white">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="text-sm text-gray-600">Vehicle: {a.vehicleId} • By {a.author}</div>
-                    {editingId === a.id ? (
-                      <>
-                        <input value={editTitle} onChange={e => setEditTitle(e.target.value)} className="w-full mb-2 p-2 border rounded" />
-                        <textarea value={editBody} onChange={e => setEditBody(e.target.value)} rows={3} className="w-full p-2 border rounded" />
-                        <div className="flex gap-2 mt-2">
-                          <button onClick={saveEdit} className="px-3 py-1 bg-green-600 text-white rounded">Save</button>
-                          <button onClick={() => setEditingId(null)} className="px-3 py-1 bg-gray-200 rounded">Cancel</button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="font-semibold">{a.title}</div>
-                        <div className="text-sm text-gray-700 mt-2">{a.body}</div>
-                        {a.images && a.images.length > 0 && (
-                          <div className="mt-2 flex gap-2">
-                            {a.images.map((img: string, idx: number) => (
-                              <img key={idx} src={img} alt={`article-${idx}`} className="h-28 w-28 object-cover rounded" />
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-2 ml-4">
-                    <button onClick={() => startEdit(a)} className="px-3 py-1 bg-yellow-200 rounded">Edit</button>
-                    <button onClick={() => handleDelete(a.id)} className="px-3 py-1 bg-red-200 rounded">Delete</button>
-                  </div>
+              <div key={a.id} className="p-3 border rounded bg-white flex items-start gap-3">
+                {/* Thumbnail (small) */}
+                {a.images && a.images.length > 0 ? (
+                  <img src={a.images[0]} alt="thumb" className="h-16 w-24 object-cover rounded-md flex-shrink-0" />
+                ) : (
+                  <div className="h-16 w-24 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center text-gray-400">No Image</div>
+                )}
+
+                <div className="flex-1">
+                  <div className="text-xs text-gray-500">{a.vehicleName || a.vehicleId} • By {a.author}</div>
+                  {editingId === a.id ? (
+                    <>
+                      <input value={editTitle} onChange={e => setEditTitle(e.target.value)} className="w-full mb-2 p-2 border rounded" />
+                      <textarea value={editBody} onChange={e => setEditBody(e.target.value)} rows={2} className="w-full p-2 border rounded" />
+                      <div className="flex gap-2 mt-2">
+                        <button onClick={saveEdit} className="px-3 py-1 bg-green-600 text-white rounded">Save</button>
+                        <button onClick={() => setEditingId(null)} className="px-3 py-1 bg-gray-200 rounded">Cancel</button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="font-medium text-sm">{a.title}</div>
+                      <div className="text-sm text-gray-700 mt-1 line-clamp-2">{a.body}</div>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2 ml-2">
+                  <button onClick={() => startEdit(a)} className="px-3 py-1 bg-yellow-100 text-sm rounded">Edit</button>
+                  <button onClick={() => handleDelete(a.id)} className="px-3 py-1 bg-red-100 text-sm rounded">Delete</button>
                 </div>
               </div>
             ))}
