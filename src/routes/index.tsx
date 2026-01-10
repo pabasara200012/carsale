@@ -25,7 +25,12 @@ const AppRouter: React.FC = () => {
 
   // Admin route wrapper
   const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    if (!currentUser || currentUser.role !== 'admin') {
+    // If not logged in, ask user to login first.
+    if (!currentUser) {
+      return <Navigate to="/login" />;
+    }
+    // If logged in but not admin, send back to dashboard.
+    if (currentUser.role !== 'admin') {
       return <Navigate to="/dashboard" />;
     }
     return <>{children}</>;

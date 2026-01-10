@@ -210,13 +210,13 @@ const Dashboard: React.FC = () => {
               : 'Get started by adding your first vehicle to the inventory.'
             }
           </p>
-          <a
-            href="/add-vehicle"
+          <Link
+            to="/add-vehicle"
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
           >
             <span className="mr-2">➕</span>
             Add First Vehicle
-          </a>
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
