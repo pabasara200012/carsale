@@ -13,6 +13,7 @@ interface Article {
   body: string;
   createdAt: any;
   author?: string;
+  images?: string[];
 }
 
 interface Review {
@@ -23,6 +24,7 @@ interface Review {
   rating: number;
   comment: string;
   createdAt: any;
+  images?: string[];
 }
 
 const VehicleArticles: React.FC = () => {

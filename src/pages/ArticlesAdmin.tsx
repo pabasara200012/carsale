@@ -12,6 +12,7 @@ interface Article {
   body: string;
   createdAt: any;
   author?: string;
+  images?: string[];
 }
 
 const ArticlesAdmin: React.FC = () => {
