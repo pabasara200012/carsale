@@ -34,11 +34,8 @@ const AppRouter: React.FC = () => {
   // Vehicle details wrapper component
   const VehicleDetailsWrapper: React.FC = () => {
     const { id } = useParams();
-    return (
-      <PrivateRoute>
-        <VehicleDetails vehicleId={id || ''} />
-      </PrivateRoute>
-    );
+    // Make vehicle details public (viewable without login)
+    return <VehicleDetails vehicleId={id || ''} />;
   };
 
   return (
@@ -49,14 +46,7 @@ const AppRouter: React.FC = () => {
 
       {/* Protected routes */}
       <Route path="/" element={<Navigate to="/dashboard" />} />
-      <Route 
-          path="/dashboard" 
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          } 
-        />
+      <Route path="/dashboard" element={<Dashboard />} />
         <Route 
           path="/add-vehicle" 
           element={
@@ -65,18 +55,16 @@ const AppRouter: React.FC = () => {
             </PrivateRoute>
           } 
         />
-        <Route 
-          path="/edit-vehicle/:id" 
+        <Route
+          path="/edit-vehicle/:id"
           element={
-            <PrivateRoute>
+            <AdminRoute>
               <EditVehicle />
-            </PrivateRoute>
-          } 
+            </AdminRoute>
+          }
         />
-        <Route 
-          path="/vehicle/:id" 
-          element={<VehicleDetailsWrapper />} 
-        />
+        <Route path="/vehicle/:id" element={<VehicleDetailsWrapper />} />
+        <Route path="/vehicle/:id/articles" element={<VehicleDetailsWrapper />} />
         <Route 
           path="/analytics" 
           element={

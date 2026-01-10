@@ -283,12 +283,14 @@ const Dashboard: React.FC = () => {
                   >
                     View
                   </Link>
-                  <Link
-                    to={`/edit-vehicle/${vehicle.id}`}
-                    className="px-4 py-2 bg-green-50 text-green-700 text-center text-sm font-medium rounded-lg hover:bg-green-100 transition-colors duration-200"
-                  >
-                    Edit
-                  </Link>
+                  {(isAdmin || vehicle.addedBy === currentUser?.uid) && (
+                    <Link
+                      to={`/edit-vehicle/${vehicle.id}`}
+                      className="px-4 py-2 bg-green-50 text-green-700 text-center text-sm font-medium rounded-lg hover:bg-green-100 transition-colors duration-200"
+                    >
+                      Edit
+                    </Link>
+                  )}
 
                   {(isAdmin || vehicle.addedBy === currentUser?.uid) && (
                     <div className="flex items-center space-x-2">
