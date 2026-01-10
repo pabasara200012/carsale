@@ -123,6 +123,16 @@ const Dashboard: React.FC = () => {
           <span className="mr-2">➕</span>
           <p className="text-sm font-medium text-gray-600">Add New Vehicle</p>
         </Link>
+
+        {isAdmin && (
+          <Link
+            to="/articles"
+            className="inline-flex items-center px-6 py-3 bg-white border border-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm"
+          >
+            <span className="mr-2">📝</span>
+            <p className="text-sm font-medium">Manage Articles</p>
+          </Link>
+        )}
       </div>
 
       {/* Statistics Cards */}

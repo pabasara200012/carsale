@@ -31,6 +31,7 @@ const AppRouter: React.FC = () => {
       return <Navigate to="/login" />;
     }
     // If logged in but not admin, send back to dashboard.
+    import ArticlesAdmin from '../pages/ArticlesAdmin';
     if (currentUser.role !== 'admin') {
       return <Navigate to="/dashboard" />;
     }
@@ -67,6 +68,14 @@ const AppRouter: React.FC = () => {
             <AdminRoute>
               <EditVehicle />
             </AdminRoute>
+            <Route
+              path="/articles"
+              element={
+                <AdminRoute>
+                  <ArticlesAdmin />
+                </AdminRoute>
+              }
+            />
           }
         />
         <Route path="/vehicle/:id" element={<VehicleDetailsWrapper />} />

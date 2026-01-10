@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { collection, query, where, getDocs, addDoc, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
@@ -85,6 +85,17 @@ const VehicleArticles: React.FC = () => {
     }
   };
 
+  const handleDeleteArticle = async (articleId?: string) => {
+    if (!isAdmin || !articleId) return;
+    if (!confirm('Delete this article?')) return;
+    try {
+      await deleteDoc(doc(db, 'vehicleArticles', articleId));
+      fetchData();
+    } catch (err) {
+      console.error('Delete article failed', err);
+    }
+  };
+
   const handleAddReview = async () => {
     if (!currentUser) {
       setError('You must be logged in to post a review');
@@ -108,6 +119,17 @@ const VehicleArticles: React.FC = () => {
     }
   };
 
+  const handleDeleteReview = async (reviewId?: string) => {
+    if (!isAdmin || !reviewId) return;
+    if (!confirm('Delete this review?')) return;
+    try {
+      await deleteDoc(doc(db, 'vehicleReviews', reviewId));
+      fetchData();
+    } catch (err) {
+      console.error('Delete review failed', err);
+    }
+  };
+
   if (loading) return <Layout><div className="p-6">Loading...</div></Layout>;
 
   return (
@@ -121,9 +143,18 @@ const VehicleArticles: React.FC = () => {
           {articles.length === 0 && <p className="text-sm text-gray-600">No articles yet.</p>}
           {articles.map(a => (
             <div key={a.id} className="mb-4 p-4 border rounded">
-              <h3 className="font-semibold">{a.title}</h3>
-              <p className="text-sm text-gray-600">By {a.author} • {new Date(a.createdAt?.seconds ? a.createdAt.toDate() : a.createdAt).toLocaleString()}</p>
-              <div className="mt-2">{a.body}</div>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-semibold">{a.title}</h3>
+                  <p className="text-sm text-gray-600">By {a.author} • {new Date(a.createdAt?.seconds ? a.createdAt.toDate() : a.createdAt).toLocaleString()}</p>
+                  <div className="mt-2">{a.body}</div>
+                </div>
+                {isAdmin && (
+                  <div className="ml-4 flex flex-col gap-2">
+                    <button onClick={() => handleDeleteArticle(a.id)} className="px-3 py-1 bg-red-200 rounded">Delete</button>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
 
@@ -148,6 +179,11 @@ const VehicleArticles: React.FC = () => {
               </div>
               <div className="text-sm">Rating: {r.rating}/5</div>
               <div className="mt-1">{r.comment}</div>
+              {isAdmin && (
+                <div className="mt-2">
+                  <button onClick={() => handleDeleteReview(r.id)} className="px-3 py-1 bg-red-200 rounded">Delete Review</button>
+                </div>
+              )}
             </div>
           ))}
 
